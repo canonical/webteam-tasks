@@ -1,0 +1,11 @@
+{
+  "name": "tasks-file-demo",
+  "scripts": {
+    "build:css": "sass static/sass/styles.scss static/css/styles.css --load-path=node_modules --style=compressed",
+    "build": "bun run build:css"
+  },
+  "dependencies": {
+    "sass": "1.57.1",
+    "vanilla-framework": "4.16.0"
+  }
+}
