@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+  tools:
+    cmds:
+      - mise install
+
+  pip-install:
+    sources:
+      - requirements.txt
+    generates:
+      - .venv/**
+    cmds:
+      - pip install -r requirements.txt
+
+  yarn-install:
+    sources:
+      - package.json
+      - yarn.lock
+    generates:
+      - node_modules/**
+    cmds:
+      - yarn install
+
+  needs_docker:
+    status:
+      - which docker
+    cmds:
+      - echo "Docker is not installed. Please install Docker and try again."
+      - exit 1
+
+  start:
+    cmds:
+      - echo "command not implemented"
+      - exit 1
+
+  lint-taskfile:
+    # required tasks that needs to be defined across all projects
+    cmds:
+      - task: start

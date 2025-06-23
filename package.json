@@ -2,10 +2,18 @@
   "name": "tasks-file-demo",
   "scripts": {
     "build:css": "sass static/sass/styles.scss static/css/styles.css --load-path=node_modules --style=compressed",
-    "build": "bun run build:css"
+    "build": "yarn run build:css",
+    "watch:css": "watch -p 'static/sass/**/*.scss' -c 'yarn run build:css'",
+    "watch": "yarn run watch:css",
+    "serve": "talisker.gunicorn.gevent webapp.app:app --worker-class gevent --name talisker-`hostname`",
+    "start": "yarn run build && concurrently --raw 'yarn run watch' 'yarn run serve'"
   },
   "dependencies": {
     "sass": "1.57.1",
     "vanilla-framework": "4.16.0"
+  },
+  "devDependencies": {
+    "concurrently": "9.2.0",
+    "watch-cli": "0.2.3"
   }
 }

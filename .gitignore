@@ -4,3 +4,4 @@ node_modules/
 .ropeproject
 __pycache__
 static/css
+.task/

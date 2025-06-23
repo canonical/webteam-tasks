@@ -1,60 +1,6 @@
-min_version = "2024.9.5"
-
-[[env]]
-_.file.path = ".env"
-
-[[env]]
-_.file.path = ".env.local"
-
-[[env]]
-# Use the project name derived from the current directory
-PROJECT_NAME = "{{ config_root | basename }}"
-PORT="8037"
-# Automatic virtualenv activation
-_.python.venv = { path = ".venv", create = true }
-
 [tools]
-python = "{{ get_env(name='PYTHON_VERSION', default='3.11') }}"
-ruff = "latest"
-bun = "latest"
-watchexec = "latest"
+python = "3.10"
+node = "20"
 
-
-[tasks.install_ui]
-run = "bun install"
-sources = ["package.json", "bun.lock"]
-
-[tasks.install_webapp]
-run = "pip install -r requirements.txt"
-sources = ["requirements.txt"]
-
-
-[tasks.install]
-description = "Install dependencies"
-alias = "i"
-depends = ["install_ui", "install_webapp"]
-
-[tasks.build_ui]
-run = "bun run build"
-sources = ["static/sass/styles.scss", "static/**/*.ts", "static/**/*.html", "static/**/*.tsx", "static/**/*.svelte"]
-
-[tasks.dev]
-depends = ["install", "build_ui"]
-description = "Run the application"
-sources = ["webapp/**/*.py"]
-run = "talisker.gunicorn.gevent webapp.app:app --worker-class gevent --name talisker-`hostname`"
-
-[tasks.test]
-description = "Run tests"
-run = "pytest tests/"
-
-[tasks.lint]
-description = "Lint the code"
-run = "ruff webapp/"
-
-[tasks.info]
-description = "Print project information"
-run = '''
-echo "Project: $PROJECT_NAME"
-echo "Virtual Environment: $VIRTUAL_ENV"
-'''
+[[env]]
+_.python.venv = { path = ".venv", create = true }

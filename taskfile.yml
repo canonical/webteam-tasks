@@ -1,0 +1,32 @@
+version: "3"
+
+includes:
+  webteam-flask:
+    taskfile: https://gist.githubusercontent.com/goulinkh/57fac865b190583a99179d5b797b6ef0/raw/722b2f5d49235fcfa3ec7af295618a54bd787f63/webteam-flask.yaml
+    vars:
+      DATABASE_NAME: "dqlite"
+
+dotenv:
+  - .env
+  - .env.local
+
+tasks:
+  compose-up:
+    preconditions:
+      - task: webteam-flask:needs_docker
+    cmds:
+      - docker compose up -d
+
+  compose-down:
+    cmds:
+      - docker compose down
+
+  start:
+    ignore_error: true
+    deps:
+      - webteam-flask:pip-install
+      - webteam-flask:yarn-install
+      - compose-up
+    cmds:
+      - yarn start
+      - defer: {task: compose-down}
