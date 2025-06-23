@@ -30,3 +30,7 @@ tasks:
     cmds:
       - yarn start
       - defer: {task: compose-down}
+
+  clean:
+    cmds:
+      - rm -rf static/css node_modules .venv .task
