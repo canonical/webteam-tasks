@@ -1,19 +1,20 @@
 version: "3"
 
-includes:
-  webteam-flask:
-    taskfile: https://gist.githubusercontent.com/goulinkh/57fac865b190583a99179d5b797b6ef0/raw/722b2f5d49235fcfa3ec7af295618a54bd787f63/webteam-flask.yaml
-    vars:
-      DATABASE_NAME: "dqlite"
+vars:
+  PORT: 3002
 
-dotenv:
-  - .env
-  - .env.local
+  VENV_DIR: .venv
+  DOCKER_RUNTIME: "docker exec {{.container_name}}"
+  PYTHON_BIN: "{{ .DOCKER_RUNTIME }} {{ .VENV_DIR }}/bin/python3"
+  PIP_BIN: "{{ .DOCKER_RUNTIME }} {{ .VENV_DIR }}/bin/pip3"
+  YARN_BIN: "{{ .DOCKER_RUNTIME }} yarn"
+
+dotenv: [".env", ".env.local"]
 
 tasks:
   compose-up:
     preconditions:
-      - task: webteam-flask:needs_docker
+      - which docker
     cmds:
       - docker compose up -d
 
@@ -21,16 +22,47 @@ tasks:
     cmds:
       - docker compose down
 
+  venv:
+    desc: "Setup python virtual environment"
+    status:
+      - which python3
+    cmds:
+      - python3 -m venv .venv
+
+  install-python:
+    desc: "Install python packages"
+    deps:
+      - venv
+    sources:
+      - requirements.txt
+    generates:
+      - "{{ .VENV_DIR }}/*"
+    cmds:
+      - "{{ .PIP_BIN }} install -r requirements.txt"
+
+  install-yarn:
+    desc: "Install yarn packages"
+    status:
+      - which yarn
+      - which node
+    sources:
+      - yarn.lock
+      - package.json
+    generates:
+      - "node_modules/**"
+    cmds:
+      - yarn install
+
   start:
     ignore_error: true
     deps:
-      - webteam-flask:pip-install
-      - webteam-flask:yarn-install
+      - install-python
+      - install-yarn
       - compose-up
     cmds:
       - yarn start
-      - defer: {task: compose-down}
+      - defer: { task: compose-down }
 
   clean:
     cmds:
-      - rm -rf static/css node_modules .venv .task
+      - rm -rf static/css node_modules {{ .VENV_DIR }} .task
