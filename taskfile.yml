@@ -64,11 +64,6 @@ tasks:
       # Jinja2 formatting
       - "{{ .VENV_BIN }}/djlint --reformat templates/**"
 
-  get-port:
-    internal: true
-    cmds:
-      - echo "{{.PORT}}"
-
   # Docker services
   compose-up:
     internal: true
