@@ -11,26 +11,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Task
+      - name: Setup Taskfile
         uses: arduino/setup-task@v2
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run lint task
+      - name: Lint
         run: task lint
 
-      - name: Run test task
+      - name: Test
         run: task test
 
-      - name: Run start task
+      - name: Start server
         run: task start &
 
-      - name: Get port from Taskfile
-        run: echo "PORT=$(task -s get-port)" >> $GITHUB_ENV
-
-      - name: Check if server is running
-        run: curl --head --fail --retry-delay 1 --retry 30 --retry-connrefused http://localhost:${{ env.PORT }}
-
-      - name: Stop server
-        run: task compose-down
+      - name: Check server is running
+        run: |
+          echo "PORT=$(task -s get-port)" >> $GITHUB_ENV
+          curl --head --fail --retry-delay 1 --retry 30 --retry-connrefused http://localhost:$PORT
