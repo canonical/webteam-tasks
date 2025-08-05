@@ -103,7 +103,7 @@ tasks:
     internal: true
     desc: "Setup python virtual environment"
     deps:
-      - setup-mise
+      - setup-tools
     status:
       - ! -f {{ .PYTHON_BIN }}
     cmds:
@@ -125,6 +125,8 @@ tasks:
   install-yarn:
     internal: true
     desc: "Install yarn packages"
+    deps:
+      - setup-tools
     status:
       - which yarn
       - which node
