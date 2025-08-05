@@ -2,12 +2,10 @@ version: "3"
 
 vars:
   PORT: 3002
-
   VENV_DIR: .venv
-  DOCKER_RUNTIME: "docker exec {{.container_name}}"
-  PYTHON_BIN: "{{ .DOCKER_RUNTIME }} {{ .VENV_DIR }}/bin/python3"
-  PIP_BIN: "{{ .DOCKER_RUNTIME }} {{ .VENV_DIR }}/bin/pip3"
-  YARN_BIN: "{{ .DOCKER_RUNTIME }} yarn"
+  PYTHON_BIN: "{{ .VENV_DIR }}/bin/python3"
+  PIP_BIN: "{{ .VENV_DIR }}/bin/pip3"
+  YARN_BIN: "yarn"
 
 dotenv: [".env", ".env.local"]
 
@@ -22,10 +20,27 @@ tasks:
     cmds:
       - docker compose down
 
+  setup-mise:
+    desc: "Setup mise"
+    preconditions:
+      - which curl
+    status:
+      - ! which mise
+    cmds:
+      - curl https://mise.run | sh
+
+  setup-tools:
+    deps:
+      - setup-mise
+    cmds:
+      - mise install
+
   venv:
     desc: "Setup python virtual environment"
+    deps:
+      - setup-mise
     status:
-      - which python3
+      - ! -f {{ .PYTHON_BIN }}
     cmds:
       - python3 -m venv .venv
 
