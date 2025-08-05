@@ -37,7 +37,6 @@ tasks:
 
   test:
     cmds:
-      - exit 0
       - echo "No tests yet"
 
   lint:
@@ -53,10 +52,6 @@ tasks:
       # Jinja2 linting
       - "{{ .VENV_BIN }}/djlint templates/**"
 
-  test:
-    cmds:
-      - echo "No tests have been configured."
-
   format:
     deps:
       - install-python
@@ -68,6 +63,11 @@ tasks:
       - npx stylelint --fix static/**/*.scss
       # Jinja2 formatting
       - "{{ .VENV_BIN }}/djlint --reformat templates/**"
+
+  get-port:
+    internal: true
+    cmds:
+      - echo "{{.PORT}}"
 
   # Docker services
   compose-up:
