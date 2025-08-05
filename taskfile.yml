@@ -3,14 +3,75 @@ version: "3"
 vars:
   PORT: 3002
   VENV_DIR: .venv
-  PYTHON_BIN: "{{ .VENV_DIR }}/bin/python3"
-  PIP_BIN: "{{ .VENV_DIR }}/bin/pip3"
+  VENV_BIN: "{{ .VENV_DIR }}/bin"
+  PYTHON_BIN: "{{ .VENV_BIN }}/python3"
+  PIP_BIN: "{{ .VENV_BIN }}/pip3"
   YARN_BIN: "yarn"
 
 dotenv: [".env", ".env.local"]
 
 tasks:
+  default:
+    cmds:
+      - task: start
+
+  # Available tasks:
+  # - start
+  # - clean
+  # - test
+  # - lint
+  # - format
+  start:
+    ignore_error: true
+    deps:
+      - install-python
+      - install-yarn
+      - compose-up
+    cmds:
+      - yarn start
+      - defer: { task: compose-down }
+
+  clean:
+    cmds:
+      - rm -rf static/css node_modules {{ .VENV_DIR }} .task
+
+  test:
+    cmds:
+      - exit 0
+      - echo "No tests yet"
+
+  lint:
+    deps:
+      - install-python
+      - install-yarn
+    cmds:
+      # Python linting
+      - "{{ .VENV_BIN }}/flake8 --extend-ignore=E203 webapp"
+      - "{{ .VENV_BIN }}/black --check --line-length 79 webapp"
+      # CSS linting
+      - npx stylelint static/**/*.scss
+      # Jinja2 linting
+      - "{{ .VENV_BIN }}/djlint templates/**"
+
+  test:
+    cmds:
+      - echo "No tests have been configured."
+
+  format:
+    deps:
+      - install-python
+      - install-yarn
+    cmds:
+      # Python formatting
+      - "{{ .VENV_BIN }}/black --line-length 79 webapp"
+      # CSS formatting
+      - npx stylelint --fix static/**/*.scss
+      # Jinja2 formatting
+      - "{{ .VENV_BIN }}/djlint --reformat templates/**"
+
+  # Docker services
   compose-up:
+    internal: true
     preconditions:
       - which docker
     cmds:
@@ -20,7 +81,9 @@ tasks:
     cmds:
       - docker compose down
 
+  # Custom tools versioning setup (mise, python, node, etc.)
   setup-mise:
+    internal: true
     desc: "Setup mise"
     preconditions:
       - which curl
@@ -35,7 +98,9 @@ tasks:
     cmds:
       - mise install
 
+  # Python virtual environment
   venv:
+    internal: true
     desc: "Setup python virtual environment"
     deps:
       - setup-mise
@@ -45,6 +110,7 @@ tasks:
       - python3 -m venv .venv
 
   install-python:
+    internal: true
     desc: "Install python packages"
     deps:
       - venv
@@ -55,7 +121,9 @@ tasks:
     cmds:
       - "{{ .PIP_BIN }} install -r requirements.txt"
 
+  # Node.js package manager
   install-yarn:
+    internal: true
     desc: "Install yarn packages"
     status:
       - which yarn
@@ -67,17 +135,3 @@ tasks:
       - "node_modules/**"
     cmds:
       - yarn install
-
-  start:
-    ignore_error: true
-    deps:
-      - install-python
-      - install-yarn
-      - compose-up
-    cmds:
-      - yarn start
-      - defer: { task: compose-down }
-
-  clean:
-    cmds:
-      - rm -rf static/css node_modules {{ .VENV_DIR }} .task

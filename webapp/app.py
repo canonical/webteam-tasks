@@ -5,12 +5,14 @@ app = FlaskBase(
     __name__,
     "tasks-flask",
     template_folder="../templates",
-    static_folder="../static"
+    static_folder="../static",
 )
+
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/test")
 def hello_world():

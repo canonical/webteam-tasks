@@ -1,1 +1,4 @@
 canonicalwebteam.flask-base==2.5.0
+flake8==7.3.0
+black==25.1.0
+djlint==1.36.4
