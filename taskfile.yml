@@ -1,26 +1,28 @@
 version: "3"
 
 vars:
-  PORT: 3002
   VENV_DIR: .venv
   VENV_BIN: "{{ .VENV_DIR }}/bin"
   PYTHON_BIN: "{{ .VENV_BIN }}/python3"
   PIP_BIN: "{{ .VENV_BIN }}/pip3"
-  YARN_BIN: "yarn"
+
+env:
+  PORT: 3002
+  PATH: "{{ .VENV_BIN }}:$PATH"
 
 dotenv: [".env", ".env.local"]
 
+# Available tasks:
+# - start (default)
+# - clean
+# - test
+# - lint
+# - format
 tasks:
   default:
     cmds:
       - task: start
 
-  # Available tasks:
-  # - start
-  # - clean
-  # - test
-  # - lint
-  # - format
   start:
     ignore_error: true
     deps:
@@ -28,7 +30,7 @@ tasks:
       - install-yarn
       - compose-up
     cmds:
-      - yarn start
+      - PATH="{{ .VENV_BIN }}:$PATH" yarn start
       - defer: { task: compose-down }
 
   clean:
