@@ -28,5 +28,5 @@ jobs:
 
       - name: Check server is running
         run: |
-          echo "PORT=$(task -s get-port)" >> $GITHUB_ENV
-          curl --head --fail --retry-delay 1 --retry 30 --retry-connrefused http://localhost:$PORT
+          export PORT=$(task -s get-port)
+          curl --head --fail --retry-delay 1 --retry 30 --retry-connrefused http://localhost:${PORT}
